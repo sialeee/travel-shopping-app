@@ -1,0 +1,861 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>掃貨誌｜出國好物攻略</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Noto+Sans+TC:wght@400;500;700;900&display=swap');
+
+  :root{
+    --bg:#FBF8F3;
+    --bg-deep:#F1EBE1;
+    --card:#FFFFFF;
+    --ink:#3C332B;
+    --ink-soft:#9A8F82;
+    --ink-faint:#C3B9AC;
+    --line:#EDE5D8;
+    --coral:#FF6F52;
+    --coral-dark:#E85536;
+    --coral-soft:#FFE3D9;
+    --coral-mist:#FFF1EC;
+    --shadow-sm: 0 2px 8px rgba(60,46,30,0.06);
+    --shadow: 0 10px 26px rgba(60,46,30,0.10);
+    --shadow-lg: 0 18px 40px rgba(60,46,30,0.16);
+    --r-lg:22px;
+    --r-md:16px;
+    --r-sm:12px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:#E7DFD1;
+    display:flex; align-items:center; justify-content:center; padding:20px;
+    font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;
+    -webkit-font-smoothing:antialiased;
+    min-height:100vh; min-height:100dvh;
+  }
+  .display, h1, h2, h3, .logo{
+    font-family:"Baloo 2","Noto Sans TC","PingFang TC",sans-serif;
+    font-weight:700;
+  }
+  #shell{
+    width:375px; height:812px; max-width:100%; max-height:100%; background:var(--bg); position:relative;
+    box-shadow:var(--shadow-lg); border-radius:44px; overflow:hidden; flex-shrink:0;
+  }
+
+  /* ---- RWD：手機瀏覽時滿版顯示，像真正的 webapp ---- */
+  @media (max-width:480px){
+    body{ padding:0; background:var(--bg); align-items:stretch; }
+    #shell{
+      width:100vw; height:100vh; height:100dvh;
+      border-radius:0; box-shadow:none;
+    }
+  }
+  #content{
+    position:absolute; top:0; left:0; right:0; bottom:80px; overflow-y:auto;
+    padding:20px 18px 26px 18px; animation:fadeSlide .3s ease; scrollbar-width:none; color:var(--ink);
+  }
+  #content::-webkit-scrollbar{display:none;}
+  @keyframes fadeSlide{ from{opacity:0; transform:translateY(8px);} to{opacity:1; transform:translateY(0);} }
+  @media (prefers-reduced-motion: reduce){ #content{animation:none;} *{transition:none !important;} }
+
+  /* ---- header / nav bits ---- */
+  .topbar{ display:flex; align-items:center; gap:12px; padding:4px 0 4px 0; margin-bottom:6px;}
+  .back-btn{
+    width:38px; height:38px; border-radius:50%; background:var(--card); border:none; cursor:pointer;
+    display:flex; align-items:center; justify-content:center; color:var(--ink); box-shadow:var(--shadow-sm);
+    flex-shrink:0; transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .back-btn:hover{ transform:translateY(-1px); box-shadow:var(--shadow); }
+  .brand{ display:flex; align-items:baseline; gap:9px; }
+  .brand .logo{ font-size:25px; color:var(--ink); letter-spacing:.2px;}
+  .brand .tagline{ font-size:11.5px; color:var(--ink-soft); font-weight:500;}
+  .page-title{ font-size:21px; font-weight:700; margin:0; color:var(--ink);}
+  .page-sub{ font-size:12.5px; color:var(--ink-soft); margin:6px 0 16px 0; font-weight:500;}
+
+  /* ---- search ---- */
+  .search-wrap{ position:relative; margin:14px 0 20px 0; }
+  .search-wrap input{
+    width:100%; padding:13px 16px 13px 42px; border-radius:999px; border:1.5px solid var(--line);
+    background:var(--card); font-size:13.5px; color:var(--ink); outline:none; font-family:inherit;
+    box-shadow:var(--shadow-sm); font-weight:500;
+  }
+  .search-wrap input::placeholder{ color:var(--ink-faint); }
+  .search-wrap input:focus{ border-color:var(--coral); box-shadow:0 0 0 4px var(--coral-mist); }
+  .search-wrap .icon{ position:absolute; left:15px; top:50%; transform:translateY(-50%); color:var(--ink-faint); display:flex;}
+
+  /* ---- section heads ---- */
+  .sec-head{ display:flex; align-items:center; justify-content:space-between; margin:24px 0 13px 0;}
+  .sec-head h3{ font-size:15.5px; margin:0; color:var(--ink); font-weight:700;}
+  .sec-head .hint{ font-size:10.5px; color:var(--coral-dark); background:var(--coral-soft); padding:4px 10px; border-radius:999px; font-weight:700;}
+
+  /* ---- story-style country row ---- */
+  .story-row{ display:flex; gap:14px; overflow-x:auto; padding:2px 2px 6px 2px; scrollbar-width:none;}
+  .story-row::-webkit-scrollbar{ display:none; }
+  .story-chip{ flex-shrink:0; display:flex; flex-direction:column; align-items:center; gap:7px; cursor:pointer; width:60px;}
+  .story-ring{
+    width:56px; height:56px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+    font-size:24px; box-shadow:var(--shadow-sm); border:2.5px solid var(--card); transition:transform .15s ease;
+    position:relative;
+  }
+  .story-chip:hover .story-ring{ transform:translateY(-2px) scale(1.03); }
+  .story-chip .name{ font-size:11px; font-weight:600; color:var(--ink); }
+
+  /* country gradients (also used as photo backdrops) */
+  .bgc-jp{ background:linear-gradient(135deg,#FFD9CC,#FFAE93); }
+  .bgc-kr{ background:linear-gradient(135deg,#FFE1EC,#FFB8CF); }
+  .bgc-th{ background:linear-gradient(135deg,#FFEEC2,#FFCF7E); }
+  .bgc-fr{ background:linear-gradient(135deg,#DCEBFF,#AFCCF7); }
+  .bgc-us{ background:linear-gradient(135deg,#E7E4FF,#C6BEFA); }
+  .bgc-it{ background:linear-gradient(135deg,#E4F3D8,#B7DFA2); }
+  .bgc-hk{ background:linear-gradient(135deg,#FFE0DC,#FFB3A8); }
+  .bgc-sg{ background:linear-gradient(135deg,#D9F2EA,#A6E0CB); }
+  .bgc-vn{ background:linear-gradient(135deg,#FFE9C2,#FFC978); }
+
+  /* ---- guides country grid ---- */
+  .country-grid{ display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+  .country-card{
+    border-radius:var(--r-lg); padding:20px 16px; cursor:pointer; position:relative; overflow:hidden;
+    box-shadow:var(--shadow-sm); transition:transform .15s ease, box-shadow .15s ease; min-height:118px;
+  }
+  .country-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow); }
+  .country-card .flag{ font-size:30px; display:block; margin-bottom:10px; filter:drop-shadow(0 2px 3px rgba(0,0,0,.08)); }
+  .country-card .name{ font-weight:800; font-size:15px; color:var(--ink); }
+  .country-card .count{ font-size:11.5px; color:var(--ink); opacity:.65; margin-top:2px; font-weight:600;}
+
+  /* ---- photo grid (instagram-like) ---- */
+  .photo-grid{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .photo-card{
+    background:var(--card); border-radius:var(--r-md); overflow:hidden; cursor:pointer; box-shadow:var(--shadow-sm);
+    transition:transform .15s ease, box-shadow .15s ease; display:flex; flex-direction:column;
+  }
+  .photo-card:hover{ transform:translateY(-3px); box-shadow:var(--shadow); }
+  .photo-frame{
+    position:relative; width:100%; aspect-ratio:4/5; display:flex; align-items:center; justify-content:center;
+    overflow:hidden;
+  }
+  .photo-frame::after{
+    content:''; position:absolute; inset:0;
+    background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2'/%3E%3C/filter%3E%3Crect width='120' height='120' filter='url(%23n)'/%3E%3C/svg%3E");
+    opacity:.28; mix-blend-mode:overlay; pointer-events:none;
+  }
+  .photo-frame::before{
+    content:''; position:absolute; inset:0;
+    background:radial-gradient(circle at 30% 20%, rgba(255,255,255,.35), transparent 55%);
+    pointer-events:none;
+  }
+  .photo-emoji{ font-size:46px; position:relative; z-index:1; filter:drop-shadow(0 3px 6px rgba(0,0,0,.12)); }
+  .flag-badge{
+    position:absolute; top:9px; left:9px; background:rgba(255,255,255,.82); backdrop-filter:blur(2px);
+    padding:4px 9px; border-radius:999px; font-size:10.5px; font-weight:700; color:var(--ink); z-index:2;
+    display:flex; align-items:center; gap:3px; box-shadow:var(--shadow-sm);
+  }
+  .save-fab{
+    position:absolute; top:8px; right:8px; width:30px; height:30px; border-radius:50%; border:none; cursor:pointer;
+    background:rgba(255,255,255,.85); backdrop-filter:blur(2px); display:flex; align-items:center; justify-content:center;
+    color:var(--ink-soft); z-index:2; box-shadow:var(--shadow-sm); transition:transform .12s ease;
+  }
+  .save-fab:hover{ transform:scale(1.08); }
+  .save-fab.active{ color:var(--coral); }
+  .photo-info{ padding:11px 12px 13px 12px; display:flex; flex-direction:column; gap:5px; }
+  .info-top{ display:flex; align-items:center; gap:5px; font-size:10.5px; color:var(--ink-soft); font-weight:600; }
+  .info-top .dot{ opacity:.5; }
+  .photo-title{
+    font-size:12.8px; font-weight:700; line-height:1.4; margin:0; color:var(--ink);
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .photo-takeaway{
+    font-size:11px; color:var(--ink-soft); line-height:1.4; margin:0; font-weight:500;
+    display:-webkit-box; -webkit-line-clamp:1; -webkit-box-orient:vertical; overflow:hidden;
+  }
+  .info-bottom{ display:flex; align-items:center; margin-top:2px;}
+  .like-chip{
+    display:flex; align-items:center; gap:4px; background:none; border:none; cursor:pointer; font-family:inherit;
+    font-size:11px; font-weight:700; color:var(--ink-faint); padding:2px 0;
+  }
+  .like-chip.active{ color:var(--coral); }
+
+  /* single column list (used for author/country list too, reuses photo-grid) */
+  .list-wide{ display:flex; flex-direction:column; gap:16px; }
+
+  /* ---- feed card (single-column post card, per wireframe) ---- */
+  .feed-card{
+    background:var(--card); border-radius:var(--r-lg); padding:14px 14px 15px 14px; cursor:pointer;
+    box-shadow:var(--shadow-sm); transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .feed-card:hover{ transform:translateY(-2px); box-shadow:var(--shadow); }
+  .feed-head{ display:flex; align-items:center; gap:10px; margin-bottom:11px; }
+  .feed-head .avatar{ width:34px; height:34px; font-size:13px; flex-shrink:0; }
+  .feed-head .who{ min-width:0; flex:1; display:flex; flex-direction:column; }
+  .feed-head .who .name{ font-size:12.5px; font-weight:700; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .feed-head .who .sub{ font-size:10.5px; color:var(--ink-soft); font-weight:500; display:flex; align-items:center; gap:4px; }
+  .feed-icons{ display:flex; align-items:center; gap:12px; flex-shrink:0; color:var(--ink-faint); }
+  .feed-icons button{ background:none; border:none; cursor:pointer; padding:0; display:flex; color:inherit; font-family:inherit; transition:color .15s ease, transform .12s ease; }
+  .feed-icons button:hover{ transform:scale(1.08); }
+  .feed-icons .fi-save.active{ color:var(--coral); }
+  .feed-icons .fi-like{ display:flex; align-items:center; gap:3px; font-size:11px; font-weight:700; color:var(--ink-faint); }
+  .feed-icons .fi-like.active{ color:var(--coral); }
+  .feed-photo{
+    position:relative; width:100%; aspect-ratio:16/11; border-radius:var(--r-md); overflow:hidden;
+    display:flex; align-items:center; justify-content:center; margin-bottom:11px;
+  }
+  .feed-photo .photo-emoji{ font-size:52px; }
+  .feed-body .title{ font-size:13.5px; font-weight:700; line-height:1.55; color:var(--ink); margin:0 0 4px 0; }
+  .feed-body .excerpt{ font-size:12px; color:var(--ink-soft); line-height:1.6; margin:0; font-weight:500;
+    display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .feed-more{ display:block; text-align:right; font-size:11.5px; font-weight:700; color:var(--coral-dark); margin-top:8px; }
+
+  /* ---- filter tabs (最新 / 最熱門) ---- */
+  .tab-row{ display:flex; gap:9px; margin:12px 0 20px 0; }
+  .tab-btn{
+    padding:9px 18px; border-radius:999px; border:1.5px solid var(--line); background:var(--card); color:var(--ink-soft);
+    font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit; transition:all .15s ease;
+  }
+  .tab-btn.active{ background:var(--ink); border-color:var(--ink); color:#fff; }
+  .tab-btn:hover:not(.active){ border-color:var(--ink-faint); color:var(--ink); }
+
+  /* ---- image upload grid (publish page) ---- */
+  .upload-btn{
+    display:inline-flex; align-items:center; gap:7px; padding:11px 16px; border-radius:var(--r-sm); border:1.5px dashed var(--ink-faint);
+    background:var(--bg-deep); color:var(--ink-soft); font-size:12.5px; font-weight:700; cursor:pointer; font-family:inherit;
+    margin-bottom:12px; transition:border-color .15s ease, color .15s ease;
+  }
+  .upload-btn:hover{ border-color:var(--coral); color:var(--coral-dark); }
+  .upload-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:6px; }
+  .upload-slot{
+    position:relative; aspect-ratio:1/1; border-radius:var(--r-sm); border:1.5px dashed var(--ink-faint); background:var(--bg-deep);
+    display:flex; align-items:center; justify-content:center; font-size:26px; cursor:pointer; overflow:hidden; color:var(--ink-faint);
+  }
+  .upload-slot.filled{ border-style:solid; border-color:var(--line); background:var(--card); }
+  .upload-slot .rm{
+    position:absolute; top:4px; right:4px; width:20px; height:20px; border-radius:50%; background:rgba(60,46,30,.75); color:#fff;
+    border:none; display:flex; align-items:center; justify-content:center; font-size:12px; cursor:pointer; z-index:2;
+  }
+
+  /* ---- settings page ---- */
+  .settings-group{ margin-bottom:24px; }
+  .settings-group .grp-title{ font-size:11px; font-weight:700; color:var(--ink-faint); text-transform:uppercase; letter-spacing:.5px; margin:0 0 9px 4px; }
+  .settings-item{
+    display:flex; align-items:center; gap:12px; background:var(--card); padding:14px 15px; border-radius:var(--r-md);
+    box-shadow:var(--shadow-sm); cursor:pointer; font-size:13px; font-weight:700; color:var(--ink); margin-bottom:9px;
+    transition:transform .15s ease, box-shadow .15s ease;
+  }
+  .settings-item:hover{ transform:translateY(-1px); box-shadow:var(--shadow); }
+  .settings-item .si-icon{ width:34px; height:34px; border-radius:10px; background:var(--coral-mist); color:var(--coral-dark);
+    display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .settings-item .si-label{ flex:1; }
+  .settings-item .si-arrow{ color:var(--ink-faint); }
+
+  /* ---- avatar ---- */
+  .avatar{
+    border-radius:50%; display:flex; align-items:center; justify-content:center; color:#fff; font-weight:800;
+    flex-shrink:0; font-family:"Baloo 2","Noto Sans TC",sans-serif;
+  }
+
+  /* ---- detail page ---- */
+  .detail-photo{
+    position:relative; width:100%; aspect-ratio:4/5; border-radius:var(--r-lg); overflow:hidden;
+    display:flex; align-items:center; justify-content:center; margin-bottom:18px; box-shadow:var(--shadow);
+  }
+  .detail-photo .photo-emoji{ font-size:74px; }
+  .detail-photo .flag-badge{ font-size:12px; padding:6px 12px; }
+  .detail-title{ font-size:19px; font-weight:800; line-height:1.5; margin:0 0 14px 0; color:var(--ink); }
+  .author-row{ display:flex; align-items:center; gap:10px; margin-bottom:16px; }
+  .author-row .avatar{ width:40px; height:40px; font-size:15px; }
+  .author-name{ font-size:13.5px; font-weight:700; color:var(--ink); }
+  .author-sub{ font-size:11px; color:var(--ink-soft); font-weight:500; }
+  .follow-btn{
+    margin-left:auto; padding:8px 18px; border-radius:999px; border:none; background:var(--coral-soft);
+    color:var(--coral-dark); font-weight:700; font-size:12px; cursor:pointer; font-family:inherit; flex-shrink:0;
+    transition:background .15s ease, color .15s ease;
+  }
+  .follow-btn:hover{ background:var(--coral); color:#fff; }
+  .follow-btn.following{ background:var(--coral); color:#fff; }
+  .detail-content{ font-size:14px; line-height:1.9; color:var(--ink); }
+  .detail-content p{ margin:0 0 14px 0; }
+  .tag-row{ display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 6px 0; }
+  .tag{ background:var(--coral-mist); color:var(--coral-dark); font-size:11px; font-weight:700; padding:6px 12px; border-radius:999px; }
+  .detail-actionbar{ display:flex; gap:10px; margin-top:20px; padding-top:18px; border-top:1.5px dashed var(--line); }
+  .big-action{
+    flex:1; display:flex; align-items:center; justify-content:center; gap:7px; padding:13px; border-radius:var(--r-md);
+    border:none; background:var(--bg-deep); font-weight:700; font-size:13px; cursor:pointer; color:var(--ink-soft);
+    font-family:inherit; transition:background .15s ease, color .15s ease;
+  }
+  .big-action.active{ color:var(--coral-dark); background:var(--coral-soft); }
+  .big-action:hover{ filter:brightness(0.97); }
+
+  /* ---- forms ---- */
+  .field{ margin-bottom:17px; }
+  .field label{ display:block; font-size:12px; font-weight:700; color:var(--ink); margin-bottom:7px; }
+  .field select, .field input[type=text], .field textarea{
+    width:100%; padding:13px 14px; border-radius:var(--r-sm); border:1.5px solid var(--line); background:var(--card);
+    font-size:13.5px; font-family:inherit; color:var(--ink); outline:none; transition:border-color .15s ease;
+  }
+  .field select:focus, .field input:focus, .field textarea:focus{ border-color:var(--coral); box-shadow:0 0 0 4px var(--coral-mist); }
+  .field textarea{ resize:vertical; min-height:120px; line-height:1.7; }
+  .field .hint-txt{ font-size:11px; color:var(--ink-soft); margin-top:6px; font-weight:500; }
+  .err-box{ background:#FDE9E4; color:#C0432A; font-size:12px; padding:11px 14px; border-radius:var(--r-sm); margin-bottom:15px; font-weight:700; }
+  .submit-btn{
+    width:100%; padding:15px; border-radius:999px; border:none; background:var(--coral); color:#fff; font-weight:800;
+    font-size:14.5px; cursor:pointer; font-family:"Baloo 2","Noto Sans TC",sans-serif; box-shadow:0 10px 20px rgba(255,111,82,.35);
+    transition:background .15s ease, transform .15s ease;
+  }
+  .submit-btn:hover{ background:var(--coral-dark); transform:translateY(-1px); }
+
+  /* ---- success ---- */
+  .success-wrap{ display:flex; flex-direction:column; align-items:center; text-align:center; padding:70px 8px 20px 8px; }
+  .success-icon{
+    width:80px; height:80px; border-radius:50%; background:var(--coral-soft); display:flex; align-items:center;
+    justify-content:center; margin-bottom:24px; color:var(--coral);
+  }
+  .success-wrap h2{ font-size:19px; margin:0 0 9px 0; color:var(--ink); }
+  .success-wrap p{ font-size:13px; color:var(--ink-soft); margin:0 0 32px 0; line-height:1.7; font-weight:500; }
+  .success-actions{ display:flex; flex-direction:column; gap:11px; width:100%; }
+  .btn-outline{
+    padding:14px; border-radius:999px; border:1.5px solid var(--ink); background:none; color:var(--ink); font-weight:700;
+    font-size:13.5px; cursor:pointer; font-family:inherit;
+  }
+  .btn-outline:hover{ background:var(--ink); color:#fff; }
+
+  /* ---- empty state ---- */
+  .empty-state{ text-align:center; padding:56px 18px; color:var(--ink-soft); }
+  .empty-state .emoji{ font-size:46px; display:block; margin-bottom:16px; }
+  .empty-state p{ font-size:13px; margin:0 0 20px 0; line-height:1.7; font-weight:500; }
+
+  /* ---- author list (following page) ---- */
+  .author-item{
+    display:flex; align-items:center; gap:13px; background:var(--card); border-radius:var(--r-md); padding:14px;
+    box-shadow:var(--shadow-sm);
+  }
+  .author-item .avatar{ width:46px; height:46px; font-size:16px; }
+  .author-item .info{ flex:1; min-width:0; }
+  .author-item .name{ font-weight:700; font-size:13.5px; color:var(--ink); }
+  .author-item .stat{ font-size:11px; color:var(--ink-soft); font-weight:500; margin-top:1px; }
+  .link-btn{
+    font-size:11.5px; font-weight:700; color:var(--coral-dark); background:var(--coral-soft); border:none;
+    cursor:pointer; font-family:inherit; padding:8px 14px; border-radius:999px; flex-shrink:0;
+    transition:background .15s ease, color .15s ease;
+  }
+  .link-btn:hover{ background:var(--coral); color:#fff; }
+
+  /* ---- bottom nav ---- */
+  #navbar{
+    position:absolute; left:0; right:0; bottom:0; background:var(--card); border-top:1px solid var(--line);
+    display:flex; padding:9px 6px 12px 6px; z-index:20;
+  }
+  .nav-item{
+    flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; cursor:pointer; border:none;
+    background:none; font-family:"Noto Sans TC",sans-serif; padding:6px 2px; color:var(--ink-faint); position:relative;
+    transition:color .15s ease;
+  }
+  .nav-item:hover{ color:var(--ink-soft); }
+  .nav-item.active{ color:var(--coral); }
+  .nav-item .label{ font-size:10px; font-weight:700; }
+  .nav-item.publish-item .nav-circle{
+    width:46px; height:46px; border-radius:50%; background:var(--coral); display:flex; align-items:center;
+    justify-content:center; color:#fff; margin-top:-26px; box-shadow:0 8px 18px rgba(255,111,82,.5);
+    border:4px solid var(--card); transition:transform .15s ease;
+  }
+  .nav-item.publish-item:hover .nav-circle{ transform:scale(1.06); }
+
+  /* ---- toast ---- */
+  #toast{
+    position:absolute; left:50%; bottom:82px; transform:translateX(-50%); background:var(--ink); color:#fff;
+    padding:11px 20px; border-radius:999px; font-size:12.5px; font-weight:700; box-shadow:var(--shadow-lg);
+    z-index:30; opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease; white-space:nowrap;
+  }
+  #toast.show{ opacity:1; transform:translateX(-50%) translateY(-4px); }
+</style>
+</head>
+<body>
+<div id="shell">
+  <div id="content"></div>
+  <div id="navbar"></div>
+  <div id="toast"></div>
+</div>
+
+<script>
+/* ---------------- ICONS ---------------- */
+const ICONS = {
+  back:`<svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>`,
+  search:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>`,
+  home:(a)=>`<svg width="20" height="20" viewBox="0 0 24 24" fill="${a?'currentColor':'none'}" fill-opacity="${a?'0.16':'0'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11.5L12 4l9 7.5"/><path d="M5 10v9a1 1 0 001 1h4v-6h4v6h4a1 1 0 001-1v-9"/></svg>`,
+  compass:(a)=>`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9" fill="${a?'currentColor':'none'}" fill-opacity="${a?'0.16':'0'}"/><path d="M15 9l-2.5 6.5L9 17l2.5-6.5L15 9z" fill="${a?'currentColor':'none'}"/></svg>`,
+  plus:`<svg width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></svg>`,
+  bookmark:(a)=>`<svg width="16" height="16" viewBox="0 0 24 24" fill="${a?'currentColor':'none'}" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12a1 1 0 011 1v17l-7-4-7 4V4a1 1 0 011-1z"/></svg>`,
+  bookmarkNav:(a)=>`<svg width="20" height="20" viewBox="0 0 24 24" fill="${a?'currentColor':'none'}" fill-opacity="${a?'0.16':'0'}" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12a1 1 0 011 1v17l-7-4-7 4V4a1 1 0 011-1z"/></svg>`,
+  user:(a)=>`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="4" fill="${a?'currentColor':'none'}" fill-opacity="${a?'0.16':'0'}"/><path d="M4 20c0-4 4-6 8-6s8 2 8 6"/></svg>`,
+  settings:(a)=>`<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3" fill="${a?'currentColor':'none'}" fill-opacity="${a?'0.16':'0'}"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9a1.65 1.65 0 001.51 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>`,
+  camera:`<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 19a2 2 0 01-2 2H3a2 2 0 01-2-2V8a2 2 0 012-2h4l2-3h6l2 3h4a2 2 0 012 2z"/><circle cx="12" cy="13" r="4"/></svg>`,
+  x:`<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>`,
+  chevron:`<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M9 18l6-6-6-6"/></svg>`,
+  heart:(a)=>`<svg width="14" height="14" viewBox="0 0 24 24" fill="${a?'currentColor':'none'}" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-7.5-4.6-10-9.3C.5 8.2 2.4 4.5 6 4c2.2-.3 4 1 6 3.2C14 5 15.8 3.7 18 4c3.6.5 5.5 4.2 4 7.7C19.5 16.4 12 21 12 21z"/></svg>`,
+  check:`<svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>`,
+};
+
+/* ---------------- DATA ---------------- */
+const COUNTRIES = [
+  {key:'hk', name:'香港', flag:'🇭🇰'},
+  {key:'jp', name:'日本', flag:'🇯🇵'},
+  {key:'sg', name:'新加坡', flag:'🇸🇬'},
+  {key:'kr', name:'韓國', flag:'🇰🇷'},
+  {key:'th', name:'泰國', flag:'🇹🇭'},
+  {key:'vn', name:'越南', flag:'🇻🇳'},
+];
+const COLORS = ['#FF8F6B','#F2B84B','#8FBF8B','#7BA7D9','#C48FD9','#4FBDBD'];
+function countryOf(key){ return COUNTRIES.find(c=>c.key===key); }
+function colorFor(name){ let h=0; for(const ch of name) h+=ch.charCodeAt(0); return COLORS[h%COLORS.length]; }
+
+let POSTS = [
+  {id:1, country:'jp', title:'東京藥妝店必買清單，這五樣我回購第三次了', author:'小林旅行手記', cover:'💊',
+   excerpt:'眼藥水、感冒藥、貼布，藥妝店戰利品懶人包整理給你', likes:132, views:2140, date:'3天前',
+   tags:['藥妝','東京','必買'],
+   content:['每次去東京都會安排半天時間專門逛藥妝店，這篇整理我這幾次回購率最高的五樣東西，價格跟其他店比較後也附上。','眼藥水系列真的是必買，尤其冷氣房待久眼睛容易乾，隨身帶一瓶超方便；感冒藥跟貼布類我都是整箱買回來送朋友，CP值很高。','建議大家去之前先查一下當天有沒有集點活動，很多藥妝店對外國旅客都有額外折扣，結帳前記得出示護照。']},
+  {id:2, country:'jp', title:'唐吉訶德戰利品開箱，行李箱塞爆的一次', author:'阿明愛亂買', cover:'🛍️',
+   excerpt:'零食、生活雜貨、限定周邊，一次逛到腿軟的購物紀錄', likes:98, views:1530, date:'5天前',
+   tags:['唐吉訶德','雜貨','零食'],
+   content:['唐吉訶德真的是一個進去就出不來的地方，這次特別鎖定生活雜貨跟限定零食兩大類，戰利品多到行李箱差點闔不起來。','推薦大家一定要留時間逛地下樓層，很多在地零食品牌只有這裡才找得到，價格也比機場便宜不少。','購物前建議先列清單，不然真的會失心瘋，我這次就是沒列清單，回國才發現買了三包一模一樣的餅乾。']},
+  {id:3, country:'kr', title:'首爾美妝店踩雷還是挖寶？我的保養品清單', author:'潤潤的保養日記', cover:'💄',
+   excerpt:'面膜、精華液、防曬乳，這趟首爾行踩雷跟挖寶都整理給你', likes:210, views:3320, date:'1天前',
+   tags:['美妝','首爾','保養'],
+   content:['首爾的美妝店密度真的很誇張，幾乎每條街都有兩三間，這次特地比較了同一款產品在不同店家的價格差異。','面膜類真的是韓國的強項，這次買的幾款用起來服貼度都很不錯，價格也親民，很適合當伴手禮送人。','防曬乳的部分建議先看清楚是不是韓國原廠出的版本，有些觀光區店家會賣到比較舊的配方，購買前可以先查一下成分。']},
+  {id:4, country:'kr', title:'明洞零食大搜查：辦公室團購熱門款', author:'潤潤的保養日記', cover:'🍬',
+   excerpt:'蜂蜜奶油洋芋片只是入門款，這幾樣才是真正的辦公室團寵', likes:156, views:2010, date:'6天前',
+   tags:['零食','明洞','伴手禮'],
+   content:['每次出國前同事都會託買零食，這次特地在明洞待了一整個下午，專門研究哪些零食最適合帶回辦公室分享。','辣炒年糕口味的餅乾意外地不會太辣，接受度很高；還有一款玉米鬚茶包沖泡起來很方便，很適合下午茶時間。','建議買零食的時候多帶一個空的購物袋，超市結帳都要另外付袋子錢，自備比較划算也環保。']},
+  {id:5, country:'th', title:'曼谷手標泰奶茶包好喝到哭，超商就買得到', author:'背包客阿凱', cover:'🧋',
+   excerpt:'不用去專賣店，超商跟超市就能買齊的泰式飲品戰利品', likes:88, views:1120, date:'2天前',
+   tags:['泰奶','曼谷','超商'],
+   content:['泰式奶茶控看過來，這次發現手標茶包其實超商跟超市都買得到，完全不用特地跑去老字號店面排隊。','沖泡方式也很簡單，滾水加茶包燜個幾分鐘，再加煉乳跟奶水就有濃郁的泰奶香氣，回國後自己泡也很有旅行感。','建議一次多買幾包，因為真的很容易喝完，價格便宜到會讓人想直接扛一箱回家。']},
+  {id:6, country:'th', title:'泰式按摩油、青草藥膏，回國前一定要掃', author:'背包客阿凱', cover:'🌿',
+   excerpt:'按摩完直接去藥妝店補貨，這幾樣舒緩小物CP值超高', likes:74, views:980, date:'4天前',
+   tags:['按摩油','藥膏','伴手禮'],
+   content:['在泰國做完按摩之後，師傅都會推薦幾款隨身攜帶的青草藥膏，價格不貴又很實用，是我每次必買的品項。','按摩油的部分建議選小瓶裝方便攜帶，味道也比較清爽不會太濃，送朋友當伴手禮也很得體。','購買前可以先聞聞看味道是否喜歡，泰式青草油氣味偏濃，不是每個人都能接受，建議現場先試聞。']},
+  {id:7, country:'hk', title:'香港藥妝店必買保養品，比免稅店便宜', author:'Coco的香港日常', cover:'✨',
+   excerpt:'同款保養品在市區藥妝店比機場免稅店還便宜的真實比價', likes:187, views:2870, date:'2天前',
+   tags:['藥妝','香港','保養'],
+   content:['很多人以為機場免稅店最便宜，但這次實際比價後發現市區藥妝連鎖店的價格常常更漂亮，尤其遇到活動檔期。','香港藥妝的護手霜跟唇膏系列真的很值得入手，質地清爽包裝也精緻，送禮自用兩相宜。','建議安排行程時預留半天時間逛藥妝店，結帳前可以詢問是否有旅客退稅服務，能再省一筆。']},
+  {id:8, country:'hk', title:'香港超市戰利品：伴手禮不踩雷指南', author:'Coco的香港日常', cover:'🥐',
+   excerpt:'醬料、餅乾、涼茶，超市採購比精品店更划算的選擇', likes:120, views:1660, date:'6天前',
+   tags:['超市','伴手禮','香港'],
+   content:['與其去觀光區的紀念品店買伴手禮，不如直接去當地超市逛一圈，很多在地品牌的醬料跟餅乾品質都很不錯。','這次特別推薦幾款港式涼茶跟蝦醬，包裝雖然樸實但味道很道地，送給喜歡下廚的朋友特別合適。','超市採買記得注意保存期限跟攜帶規範，液狀調味品搭機時建議放託運行李，避免登機安檢麻煩。']},
+  {id:9, country:'sg', title:'新加坡機場限定商品，行李箱都不夠裝', author:'Jenny在新加坡', cover:'🛒',
+   excerpt:'台灣沒賣的限定款零食跟保健食品，這次全部搬回家', likes:145, views:2210, date:'1天前',
+   tags:['機場好市多','保健品','零食'],
+   content:['新加坡樟宜機場有不少台灣沒有引進的限定商品，這次特別鎖定保健食品跟零食兩大類慢慢比較。','維他命系列價格比台灣便宜不少，包裝也是大容量版本，很適合自己長期食用或分裝送朋友。','提醒大家結帳前確認會員卡效期，還有部分商品有攜帶出境的數量限制，出發前可以先查清楚規定。']},
+  {id:10, country:'vn', title:'越南手工皮件怎麼買才不會被坑', author:'皮件控Marco', cover:'👜',
+   excerpt:'工廠直營店跟市區專賣店的價格與品質實測比較', likes:167, views:2430, date:'4天前',
+   tags:['皮件','工廠直營','購物'],
+   content:['越南手工皮件工藝真的沒話說，但觀光區價格常常偏高，這次特地跑了郊區的工廠直營店做價格比較。','同一款式的皮夾在市區專賣店跟工廠直營店價差接近三成，皮質手感其實差異不大，值得花時間跑一趟。','購買前建議摸清楚品牌年份跟產地標示，手工訂製跟代工版本價格差異很大，避免花大錢卻買到普通版本。']},
+];
+let nextId = 11;
+
+/* ---------------- STATE ---------------- */
+const state = {
+  view:'home', country:null, postId:null, authorFilter:null, query:'', sortMode:'new',
+  viewed:[], following:new Set(), saved:new Set(), liked:new Set(), likeCounts:{},
+  returnView:null, returnCountry:null, returnAuthor:null,
+};
+POSTS.forEach(p=>state.likeCounts[p.id]=p.likes);
+
+/* ---------------- HELPERS ---------------- */
+function esc(s){ const d=document.createElement('div'); d.innerText=s; return d.innerHTML; }
+function setView(v, extra={}){ state.view=v; Object.assign(state, extra); render(); window.scrollTo(0,0); }
+function showToast(msg){
+  const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show');
+  clearTimeout(window.__toastTimer); window.__toastTimer=setTimeout(()=>t.classList.remove('show'), 1700);
+}
+function toggleLike(id, ev){
+  if(ev) ev.stopPropagation();
+  if(state.liked.has(id)){ state.liked.delete(id); state.likeCounts[id]--; }
+  else{ state.liked.add(id); state.likeCounts[id]++; showToast('已加入喜歡 ❤️'); }
+  render();
+}
+function toggleSave(id, ev){
+  if(ev) ev.stopPropagation();
+  if(state.saved.has(id)){ state.saved.delete(id); showToast('已從收藏移除'); }
+  else{ state.saved.add(id); showToast('已收藏這篇貼文 🔖'); }
+  render();
+}
+function toggleFollow(name, ev){
+  if(ev) ev.stopPropagation();
+  if(state.following.has(name)){ state.following.delete(name); }
+  else{ state.following.add(name); showToast('已追蹤 '+name); }
+  render();
+}
+function openPost(id){
+  const p = POSTS.find(x=>x.id===id);
+  if(p && !state.viewed.includes(p.country)) state.viewed.push(p.country);
+  state.returnView = state.view==='detail' ? (state.returnView||'home') : state.view;
+  state.returnCountry = state.country;
+  state.returnAuthor = state.authorFilter;
+  setView('detail', {postId:id});
+}
+function goBackFromDetail(){
+  const rv = state.returnView || 'home';
+  if(rv==='countryList') setView('countryList', {country:state.returnCountry});
+  else if(rv==='authorList') setView('authorList', {authorFilter:state.returnAuthor});
+  else if(rv==='saved' || rv==='myPosts') setView(rv);
+  else setView('home');
+}
+
+/* ---------------- CARD RENDER ---------------- */
+/* single-column feed card, matches wireframe: avatar+name+country row, bookmark/heart icons top-right,
+   large photo, title + excerpt, and a "...more" link into the full post */
+function feedCard(p){
+  const c = countryOf(p.country);
+  const liked = state.liked.has(p.id);
+  const saved = state.saved.has(p.id);
+  const avColor = colorFor(p.author);
+  return `
+  <div class="feed-card" onclick="openPost(${p.id})">
+    <div class="feed-head">
+      <span class="avatar" style="background:${avColor}">${esc(p.author[0])}</span>
+      <div class="who">
+        <span class="name">${esc(p.author)}</span>
+        <span class="sub">${c.flag} ${c.name} · ${p.date}</span>
+      </div>
+      <div class="feed-icons">
+        <button class="fi-save ${saved?'active':''}" onclick="toggleSave(${p.id}, event)">${ICONS.bookmark(saved)}</button>
+        <button class="fi-like ${liked?'active':''}" onclick="toggleLike(${p.id}, event)">${ICONS.heart(liked)} ${state.likeCounts[p.id]}</button>
+      </div>
+    </div>
+    <div class="feed-photo bgc-${p.country}"><span class="photo-emoji">${p.cover}</span></div>
+    <div class="feed-body">
+      <p class="title">${esc(p.title)}</p>
+      <p class="excerpt">${esc(p.excerpt)}</p>
+    </div>
+    <span class="feed-more">...more</span>
+  </div>`;
+}
+
+/* ---------------- VIEWS ---------------- */
+function viewHome(){
+  return `
+  <div class="topbar">
+    <div class="brand"><span class="logo display">掃貨誌</span><span class="tagline">出國不知道買什麼？來這裡挖寶</span></div>
+  </div>
+  <div class="search-wrap">
+    <span class="icon">${ICONS.search}</span>
+    <input id="searchInput" type="text" placeholder="搜尋貼文、國家或標籤" value="${esc(state.query)}" oninput="onSearchInput(this.value)">
+  </div>
+  <div id="homeDynamic"></div>
+  `;
+}
+function homeDynamicHTML(){
+  const q = state.query.trim().toLowerCase();
+  if(q){
+    const results = POSTS.filter(p=>
+      p.title.toLowerCase().includes(q) || p.author.toLowerCase().includes(q) ||
+      countryOf(p.country).name.toLowerCase().includes(q) || p.tags.some(t=>t.toLowerCase().includes(q))
+    );
+    return `
+    <div class="sec-head"><h3 class="display">搜尋結果</h3><span class="hint">${results.length} 篇</span></div>
+    ${results.length ? `<div class="list-wide">${results.map(feedCard).join('')}</div>` : `
+      <div class="empty-state"><span class="emoji">🔍</span><p>找不到符合「${esc(state.query)}」的內容<br>試試其他關鍵字，或看看國家攻略吧</p></div>
+    `}`;
+  }
+  let html = `
+  <div class="sec-head"><h3 class="display">全部貼文</h3></div>
+  <div class="list-wide">${[...POSTS].sort((a,b)=>b.id-a.id).map(feedCard).join('')}</div>
+  `;
+  return html;
+}
+function onSearchInput(val){
+  state.query = val;
+  document.getElementById('homeDynamic').innerHTML = homeDynamicHTML();
+}
+
+function viewGuides(){
+  return `
+  <div class="topbar"><div class="page-title display">攻略</div></div>
+  <p class="page-sub">選一個國家，看看大家出國都買了什麼</p>
+  <div class="country-grid">
+    ${COUNTRIES.map(c=>{
+      const cnt = POSTS.filter(p=>p.country===c.key).length;
+      return `<div class="country-card bgc-${c.key}" onclick="setView('countryList',{country:'${c.key}'})">
+        <span class="flag">${c.flag}</span>
+        <div class="name">${c.name}</div>
+        <div class="count">${cnt} 篇攻略</div>
+      </div>`;
+    }).join('')}
+  </div>`;
+}
+
+function setSortMode(m){ state.sortMode=m; render(); }
+function viewCountryList(){
+  const c = countryOf(state.country);
+  let posts = POSTS.filter(p=>p.country===state.country);
+  posts = state.sortMode==='hot' ? [...posts].sort((a,b)=>state.likeCounts[b.id]-state.likeCounts[a.id]) : [...posts].sort((a,b)=>b.id-a.id);
+  return `
+  <div class="topbar">
+    <button class="back-btn" onclick="setView('guides')">${ICONS.back}</button>
+    <div class="page-title display">${c.flag} ${c.name}</div>
+  </div>
+  <div class="tab-row">
+    <button class="tab-btn ${state.sortMode!=='hot'?'active':''}" onclick="setSortMode('new')">最新</button>
+    <button class="tab-btn ${state.sortMode==='hot'?'active':''}" onclick="setSortMode('hot')">最熱門</button>
+  </div>
+  <div class="list-wide">${posts.map(feedCard).join('')}</div>
+  `;
+}
+
+function viewAuthorList(){
+  const posts = POSTS.filter(p=>p.author===state.authorFilter);
+  return `
+  <div class="topbar">
+    <button class="back-btn" onclick="setView('settings')">${ICONS.back}</button>
+    <div class="page-title display">${esc(state.authorFilter)}</div>
+  </div>
+  <p class="page-sub">共 ${posts.length} 篇貼文</p>
+  <div class="list-wide">${posts.map(feedCard).join('')}</div>
+  `;
+}
+
+function viewDetail(){
+  const p = POSTS.find(x=>x.id===state.postId);
+  const c = countryOf(p.country);
+  const liked = state.liked.has(p.id);
+  const saved = state.saved.has(p.id);
+  const following = state.following.has(p.author);
+  const avColor = colorFor(p.author);
+  return `
+  <div class="topbar">
+    <button class="back-btn" onclick="goBackFromDetail()">${ICONS.back}</button>
+  </div>
+  <div class="detail-photo bgc-${p.country}">
+    <span class="flag-badge">${c.flag} ${c.name}</span>
+    <span class="photo-emoji">${p.cover}</span>
+  </div>
+  <h1 class="detail-title">${esc(p.title)}</h1>
+  <div class="author-row">
+    <span class="avatar" style="background:${avColor}">${esc(p.author[0])}</span>
+    <div>
+      <div class="author-name">${esc(p.author)}</div>
+      <div class="author-sub">${p.date} · ${p.views} 次瀏覽</div>
+    </div>
+    <button class="follow-btn ${following?'following':''}" onclick="toggleFollow('${esc(p.author)}', event)">${following?'已追蹤':'＋ 追蹤'}</button>
+  </div>
+  <div class="detail-content">${p.content.map(par=>`<p>${esc(par)}</p>`).join('')}</div>
+  <div class="tag-row">${p.tags.map(t=>`<span class="tag">#${esc(t)}</span>`).join('')}</div>
+  <div class="detail-actionbar">
+    <button class="big-action ${liked?'active':''}" onclick="toggleLike(${p.id})">${ICONS.heart(liked)} ${state.likeCounts[p.id]} 個喜歡</button>
+    <button class="big-action ${saved?'active':''}" onclick="toggleSave(${p.id})">${ICONS.bookmark(saved)} ${saved?'已收藏':'收藏這篇'}</button>
+  </div>
+  `;
+}
+
+const PF_EMOJI_POOL = ['🛍️','✨','💛','📦','🧳','🧴','🍬','🧋','👜','💊'];
+function resetPfImages(){ state.pfImages = []; }
+function addPfImage(){
+  if(state.pfImages.length>=3) return;
+  state.pfImages.push(PF_EMOJI_POOL[state.pfImages.length % PF_EMOJI_POOL.length]);
+  render();
+}
+function removePfImage(i, ev){ if(ev) ev.stopPropagation(); state.pfImages.splice(i,1); render(); }
+
+function viewPublish(){
+  if(!state.pfImages) resetPfImages();
+  const slots = [0,1,2].map(i=>{
+    if(state.pfImages[i]){
+      return `<div class="upload-slot filled">
+        <button class="rm" onclick="removePfImage(${i}, event)">${ICONS.x}</button>
+        <span>${state.pfImages[i]}</span>
+      </div>`;
+    }
+    return `<div class="upload-slot" onclick="addPfImage()">${ICONS.camera}</div>`;
+  }).join('');
+  return `
+  <div class="topbar">
+    <button class="back-btn" onclick="setView('home')">${ICONS.back}</button>
+    <div class="page-title display">發表購物筆記</div>
+  </div>
+  <p class="page-sub">把你出國買到的好物告訴大家吧</p>
+  <div id="publishError"></div>
+  <div class="field">
+    <label>標題</label>
+    <input id="pfTitle" type="text" placeholder="例如：東京藥妝店必買清單">
+  </div>
+  <div class="field">
+    <label>國家</label>
+    <select id="pfCountry">
+      <option value="">請選擇國家</option>
+      ${COUNTRIES.map(c=>`<option value="${c.key}">${c.flag} ${c.name}</option>`).join('')}
+    </select>
+  </div>
+  <div class="field">
+    <label>上傳圖片</label>
+    <div class="upload-grid">${slots}</div>
+    <div class="hint-txt">最多可上傳 3 張圖片</div>
+  </div>
+  <div class="field">
+    <label>內容</label>
+    <textarea id="pfContent" placeholder="分享你買了什麼、為什麼推薦、哪裡買最划算..."></textarea>
+  </div>
+  <button class="submit-btn" onclick="submitPost()">送出</button>
+  `;
+}
+function submitPost(){
+  const country = document.getElementById('pfCountry').value;
+  const title = document.getElementById('pfTitle').value.trim();
+  const content = document.getElementById('pfContent').value.trim();
+  if(!country || !title || !content){
+    document.getElementById('publishError').innerHTML = `<div class="err-box">請填寫標題、選擇國家與內容後再送出</div>`;
+    return;
+  }
+  const cover = (state.pfImages && state.pfImages[0]) || PF_EMOJI_POOL[Math.floor(Math.random()*PF_EMOJI_POOL.length)];
+  const newPost = {
+    id: nextId++, country, title, author:'我', cover,
+    excerpt: content.slice(0,40), likes:0, views:0, date:'剛剛', tags:['分享'], content:[content],
+  };
+  POSTS.unshift(newPost);
+  state.likeCounts[newPost.id]=0;
+  resetPfImages();
+  setView('publishSuccess', {postId:newPost.id});
+}
+
+function viewPublishSuccess(){
+  return `
+  <div class="topbar"><div class="page-title display">發表貼文</div></div>
+  <div class="success-wrap">
+    <div class="success-icon">${ICONS.check}</div>
+    <h2 class="display">謝謝你的分享</h2>
+    <p>你的攻略已經分享給大家，<br>其他旅人可能就靠這篇少走冤枉路。</p>
+    <div class="success-actions">
+      <button class="submit-btn" onclick="openPost(${state.postId})">直看貼文</button>
+      <button class="btn-outline" onclick="setView('home')">發現更多</button>
+    </div>
+  </div>`;
+}
+
+function viewSaved(){
+  const posts = POSTS.filter(p=>state.saved.has(p.id));
+  return `
+  <div class="topbar"><div class="page-title display">我的收藏</div></div>
+  ${posts.length ? `<div class="list-wide">${posts.map(feedCard).join('')}</div>` : ''}
+  <div class="empty-state">
+    <span class="emoji">🔖</span>
+    <p>快去發現或各國攻略<br>搜集更多筆記吧！</p>
+    ${!posts.length ? `<button class="submit-btn" style="width:auto; padding:12px 26px;" onclick="setView('guides')">前往攻略</button>` : ''}
+  </div>
+  `;
+}
+
+function viewSettings(){
+  const names = [...state.following];
+  const myCount = POSTS.filter(p=>p.author==='我').length;
+  return `
+  <div class="topbar"><div class="page-title display">設定</div></div>
+  <div class="settings-group">
+    <div class="grp-title">我的內容</div>
+    <div class="settings-item" onclick="setView('myPosts')">
+      <span class="si-icon">${ICONS.bookmarkNav(false)}</span>
+      <span class="si-label">我的貼文</span>
+      <span class="stat" style="color:var(--ink-soft); font-weight:500; font-size:11.5px;">${myCount} 篇</span>
+      <span class="si-arrow">${ICONS.chevron}</span>
+    </div>
+  </div>
+  <div class="settings-group">
+    <div class="grp-title">追蹤中${names.length? `（${names.length}）`:''}</div>
+    ${names.length ? names.map(n=>{
+      const cnt = POSTS.filter(p=>p.author===n).length;
+      const avColor = colorFor(n);
+      return `<div class="author-item" style="margin-bottom:9px;">
+        <span class="avatar" style="background:${avColor}; width:40px; height:40px; font-size:14px;">${esc(n[0])}</span>
+        <div class="info">
+          <div class="name">${esc(n)}</div>
+          <div class="stat">${cnt} 篇貼文</div>
+        </div>
+        <button class="link-btn" onclick="setView('authorList',{authorFilter:'${esc(n)}'})">查看貼文</button>
+      </div>`;
+    }).join('') : `
+      <div class="empty-state" style="padding:30px 12px;">
+        <span class="emoji">🧑‍🤝‍🧑</span>
+        <p>還沒有追蹤任何作者<br>去逛逛攻略，發現喜歡的分享者吧</p>
+      </div>`}
+  </div>
+  <div class="settings-group">
+    <div class="grp-title">一般</div>
+    <div class="settings-item" onclick="showToast('這是示範功能')">
+      <span class="si-icon">👤</span>
+      <span class="si-label">帳號設定</span>
+      <span class="si-arrow">${ICONS.chevron}</span>
+    </div>
+    <div class="settings-item" onclick="showToast('這是示範功能')">
+      <span class="si-icon">🔔</span>
+      <span class="si-label">通知設定</span>
+      <span class="si-arrow">${ICONS.chevron}</span>
+    </div>
+    <div class="settings-item" onclick="showToast('掃貨誌 v1.0')">
+      <span class="si-icon">ℹ️</span>
+      <span class="si-label">關於掃貨誌</span>
+      <span class="si-arrow">${ICONS.chevron}</span>
+    </div>
+  </div>
+  `;
+}
+
+function viewMyPosts(){
+  const posts = POSTS.filter(p=>p.author==='我').sort((a,b)=>b.id-a.id);
+  return `
+  <div class="topbar">
+    <button class="back-btn" onclick="setView('settings')">${ICONS.back}</button>
+    <div class="page-title display">我的貼文</div>
+  </div>
+  ${posts.length ? `<div class="list-wide">${posts.map(feedCard).join('')}</div>` : `
+    <div class="empty-state">
+      <span class="emoji">📝</span>
+      <p>還沒有發表過貼文<br>快去分享你的第一篇購物筆記吧</p>
+      <button class="submit-btn" style="width:auto; padding:12px 26px;" onclick="setView('publish')">發表貼文</button>
+    </div>`}
+  `;
+}
+
+/* ---------------- MAIN RENDER ---------------- */
+function render(){
+  const c = document.getElementById('content');
+  let html='';
+  switch(state.view){
+    case 'home': html = viewHome(); break;
+    case 'guides': html = viewGuides(); break;
+    case 'countryList': html = viewCountryList(); break;
+    case 'authorList': html = viewAuthorList(); break;
+    case 'detail': html = viewDetail(); break;
+    case 'publish': html = viewPublish(); break;
+    case 'publishSuccess': html = viewPublishSuccess(); break;
+    case 'saved': html = viewSaved(); break;
+    case 'settings': html = viewSettings(); break;
+    case 'myPosts': html = viewMyPosts(); break;
+    default: html = viewHome();
+  }
+  c.innerHTML = html;
+  c.style.animation='none'; void c.offsetWidth; c.style.animation='fadeSlide .3s ease';
+  if(state.view==='home'){ document.getElementById('homeDynamic').innerHTML = homeDynamicHTML(); }
+  renderNav();
+}
+
+function renderNav(){
+  const nav = document.getElementById('navbar');
+  if(state.view==='publishSuccess'){ nav.innerHTML=''; return; }
+  const items = [
+    {id:'home', label:'發現', icon:ICONS.home},
+    {id:'guides', label:'攻略', icon:ICONS.compass},
+    {id:'publish', label:'貼文', icon:null, special:true},
+    {id:'saved', label:'收藏', icon:ICONS.bookmarkNav},
+    {id:'settings', label:'設定', icon:ICONS.settings},
+  ];
+  const activeMap = { guides:['guides','countryList'], settings:['settings','myPosts','authorList'] };
+  nav.innerHTML = items.map(it=>{
+    const isActive = (activeMap[it.id]||[it.id]).includes(state.view);
+    if(it.special){
+      return `<button class="nav-item publish-item" onclick="setView('publish')"><span class="nav-circle">${ICONS.plus}</span></button>`;
+    }
+    return `<button class="nav-item ${isActive?'active':''}" onclick="setView('${it.id}')">${it.icon(isActive)}<span class="label">${it.label}</span></button>`;
+  }).join('');
+}
+
+render();
+</script>
+</body>
+</html>
